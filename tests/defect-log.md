@@ -1,0 +1,15 @@
+# CleanCity QA Defect Log
+
+**Document Version:** 1.0  
+**Date:** November 11, 2025
+
+This log tracks all defects discovered during the testing of the CleanCity application.
+
+| Defect ID | Summary                                             | Steps to Reproduce                                                                                                                            | Expected Result                                                                | Actual Result                                                                    | Severity | Priority | Status | Screenshot/Evidence |
+| :-------- | :-------------------------------------------------- | :-------------------------------------------------------------------------------------------------------------------------------------------- | :----------------------------------------------------------------------------- | :------------------------------------------------------------------------------- | :------- | :------- | :----- | :------------------ |
+| **BUG-001** | **[Home Page]** Form can be submitted without a date. | 1. Log in as a user. <br> 2. Navigate to the Home page. <br> 3. Fill in all fields *except* for the date. <br> 4. Click "Submit Request".         | The form should be blocked and a validation error "Date is required" should be shown. | The form submits successfully without a date, creating a request with no date. | **Major**  | **High**   | Open   | `[Link to Screenshot]` |
+| **BUG-002** | **[Dashboard]** "Eldoret" location filter is broken.  | 1. Log in and navigate to the Dashboard. <br> 2. From the location filter dropdown, select "Eldoret". <br> 3. Observe the requests shown in the table. | The table should only show requests from Eldoret (e.g., REQ004).                 | The table incorrectly shows requests from Nairobi instead.                       | **Major**  | **High**   | Open   | `[Link to Screenshot]` |
+| **BUG-003** | **[Admin Panel]** UI does not refresh after status update. | 1. Log in as an admin. <br> 2. Navigate to the Admin panel. <br> 3. Click "Mark as Scheduled" for request REQ001.                               | The status badge for REQ001 should immediately change to "Scheduled" on the UI.  | The UI does not change. The status is updated in `localStorage` but requires a manual page refresh to be visible. | **Minor**  | **Medium** | Open   | `[Link to Screenshot]` |
+| **BUG-004** | **[Awareness Page]** Images are missing alt-text.     | 1. Navigate to the Awareness page. <br> 2. Use a screen reader or browser developer tools to inspect the images.                                | All images should have descriptive alt-text (e.g., "A person sorting plastic bottles into a recycling bin"). | All `<img>` tags are missing the `alt` attribute, making them inaccessible.      | **Minor**  | **Low**    | Open   | `[Link to Screenshot]` |
+
+---
