@@ -1,0 +1,28 @@
+# This configuration helps manage your CleanCity QA Testing GitHub Project
+
+name: CleanCity QA Testing
+
+views:
+  - name: Board
+    layout: board
+    filter:
+      field: status
+      values: [To Do, In Progress, In Review]
+    group_by: status
+    fields: [Title, Assignees, Status, Priority]
+
+  - name: Prioritized Bugs
+    layout: board
+    filter:
+      field: labels
+      values: [bug, high priority, critical]
+    group_by: status
+    fields: [Title, Status, Assignees, Priority]
+
+  - name: Triage
+    layout: board
+    filter:
+      field: status
+      values: [To Triage, New]
+    group_by: status
+    fields: [Title, Status, Created At, Reporter]
