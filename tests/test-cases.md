@@ -3,382 +3,61 @@
 **Document Version:** 1.0  
 **Date:** November 11, 2025
 
-## 1. Test Case Priority (Risk-Based Approach)
+## 1. Test Case 
 
-*Developed by the Risk Analyst.*
 
-| Priority | Feature Area          | Justification                                                                 |
-| :------- | :-------------------- | :---------------------------------------------------------------------------- |
-| **P1 - Critical** | User Authentication   | Core to application access. Failure blocks all other functionality.         |
-| **P1 - Critical** | Waste Pickup Scheduling | Core business function. Failure makes the application useless.                |
-| **P2 - High**     | Admin Panel           | High potential for data corruption and privilege escalation issues.         |
-| **P2 - High**     | Form Validation       | Prevents bad data entry; key to data integrity. Intentional flaws exist. |
-| **P3 - Medium**   | Dashboard & Filtering | Complex functionality, likely to have bugs. Important for user engagement.    |
-| **P4 - Low**      | Awareness Page        | Static content. Lower impact on core functionality, but important for UX/Accessibility. |
+| Test Case ID      | Test Scenario                                               | Precondition                        | Test Steps                                                                                                                                          | Expected Result                                                                 | Actual Result                                                                  | Status  | Priority |
+|-------------------|-------------------------------------------------------------|--------------------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------|---------------------------------------------------------------------------------|---------------------------------------------------------------------------------|---------|----------|
+| TC_REG_01         | Verify user registration with valid details                | User on registration page           | 1. Open Registration Page<br>2. Enter valid Name, Email, Password<br>3. Click “Register”                                                            | User account created successfully; redirected to login page                     | User account created successfully; redirected to login page                     | Passed  | High     |
+| TC_REG_02         | Verify registration with invalid email                     | Registration page loaded            | 1. Enter an invalid email format (e.g. user@)<br>2. Click “Register”                                                                                | Error message “Invalid email address” displayed; registration fails             | Error message “Invalid email address” displayed; registration fails             | Passed  | High     |
+| TC_REG_03         | Verify registration with existing email                    | User account already exists         | 1. Enter an existing registered email<br>2. Click “Register”                                                                                        | Error message “Email already exists” displayed                                 | Error message “Email already exists” displayed                                 | Passed  | High     |
+| TC_REG_04         | Verify registration with mismatched password               | Registration page loaded            | 1. Open Registration Page<br>2. Enter valid Name, Email<br>3. Enter Password, enter a different confirm password<br>4. Click “Register”            | Error message "Password does not match is displayed."                           | Error message "Password does not match is displayed."                           | Passed  | High     |
+| TC_LOGIN_01       | Verify login with valid credentials                         | User registered and email verified  | 1. Navigate to login page<br>2. Enter valid credentials<br>3. Click “Login”                                                                         | Redirected to user dashboard                                                    | Redirected to user dashboard                                                    | Passed  | High     |
+| TC_LOGIN_02       | Verify login with invalid credentials                       | User exists                         | 1. Enter invalid password<br>2. Click “Login”                                                                                                       | Error message “Incorrect username or password”                                  | Error message “Incorrect username or password”                                  | Passed  | High     |
+| TC_LOGOUT_01      | Verify logout functionality                                 | User logged in                      | 1. Click “Logout”                                                                                                                                    | Redirected to login page, session cleared                                        | Redirected to login page, session cleared                                        | Passed  | High     |
+| TC_PICKUP_01      | Verify new waste pickup request submission                  | User logged in                      | 1. Open “Request Pickup” page<br>2. Fill date, address, waste type<br>3. Submit form                                                                | Confirmation message “Pickup Scheduled”                                         | Confirmation message “Pickup Scheduled”                                         | Passed  | High     |
+| TC_PICKUP_02      | Verify request submission with missing fields               | User logged in                      | 1. Leave any required field empty<br>2. Click “Submit”                                                                                               | Error message “All fields required”                                             | Error message “All fields required”                                             | Passed  | High     |
+| TC_PICKUP_03      | Verify request submission with missing date                 | User logged in                      | 1. Open “Request Pickup” page<br>2. Fill address, waste type and leave date empty<br>3. Submit form                                                | Error message “Date fields required”                                            | Confirmation message “Pickup Scheduled”                                         | Failed  | High     |
+| TC_PICKUP_04      | Verify duplicate request prevention                         | User submitted a previous request   | 1. Submit another request for same date & location                                                                                                   | Error message 'Duplicate request'                                               | Confirmation message “Pickup Scheduled”                                         | Failed  | Medium   |
+| TC_PICKUP_05      | Verify canceling a pickup request                           | User has active request             | 1. Go to “My Requests”<br>2. Click “Cancel Request”                                                                                                | Status updated to “Canceled”                                                    | User can't access their Request                                                 | Failed  | Medium   |
+| TC_PICKUP_06      | Verify pickup status updates correctly                      | Admin dashboard loaded              | 1. Admin marks a request as “Completed”                                                                                                              | User dashboard shows “Completed”                                                | User dashboard shows “Completed”                                                | Passed  | High     |
+| TC_FEEDBACK_01    | Verify feedback submission                                  | User logged in with request         | 1. Go to Feedback<br>2. Submit with valid message                                                                                                   | Success message appears                                                         | Success message appears                                                         | Passed  | Medium   |
+| TC_ADMIN_01       | Verify admin can view all pickup requests                   | Admin logged in                     | 1. Navigate to “Admin Dashboard”<br>2. View pickup request list                                                                                     | All user requests displayed with status                                         | All user requests displayed with status                                         | Passed  | High     |
+| TC_ADMIN_02       | Verify admin can update pickup request                      | Admin logged in                     | 1. Navigate to “Admin Dashboard”<br>2. View pickup request list<br>3. Change status from pending to completed                                      | Status update automatically                                                     | Status update automatically                                                     | Passed  | Medium   |
+| TC_ADMIN_03       | Verify role-based access restriction                        | Non-admin user logged in            | 1. Attempt to open “Admin Dashboard”                                                                                                                 | Access denied or redirected to home                                             | Access denied or redirected to home                                             | Passed  | High     |
+| TC_ADMIN_04       | Verify admin statistics accuracy                            | Admin logged in                     | 1. Navigate to “Admin Dashboard”<br>2. View pickup request list                                                                                     | Statistics show correct counts for Pending, Scheduled, Completed                | Statistics show correct counts                                                  | Passed  | Medium   |
+| TC_UI_01          | Verify dark mode toggle                                     | User logged in                      | 1. Go to “Appearance Settings”<br>2. Enable Dark Mode                                                                                               | Page background switches to dark theme                                          | Page background switches to dark theme                                          | Passed  | Medium   |
+| TC_UI_02          | Verify text scale adjustment                                | User logged in                      | 1. Adjust “Global Text Scale” slider                                                                                                                  | Text size updates dynamically                                                   | Text size updates dynamically                                                   | Passed  | Low      |
+| TC_FILTER_01      | Verify admin can filter requests by status                  | Admin logged in                     | 1. Select filter “Completed”<br>2. Click “Apply”                                                                                                     | Only completed requests displayed                                               | Only completed requests displayed                                               | Passed  | Medium   |
+| TC_FILTER_02      | Verify filter by location (Eldoret)                         | Admin logged in                     | 1. Go to Dashboard<br>2. Filter requests by Eldoret                                                                                                 | Only Eldoret requests should show                                               | Shows Nairobi data (Bug)                                                        | Failed  | High     |
+| TC_SECURITY_01    | Verify password is hidden during entry                      | Registration/Login page loaded      | 1. Enter password in field                                                                                                                           | Password masked with •••••                                                      | Password masked with •••••                                                      | Passed  | Medium   |
+| TC_SECURITY_02    | Verify data encryption in localStorage                      | User logged in                      | 1. Inspect browser localStorage                                                                                                                       | Sensitive info not visible in plain text                                        | Sensitive info not visible in plain text                                        | Passed  | High     |
+| TC_PERFORMANCE_01 | Verify page load time under 3 seconds                       | Internet connected                  | 1. Load dashboard page                                                                                                                               | Page loads within 3 seconds                                                     | Page loads within 3 seconds                                                     | Passed  | Medium   |
+| TC_PERFORMANCE_02 | Verify form submission response time                        | User logged in                      | 1. Submit pickup form                                                                                                                                | Response within 2 seconds                                                       | Response within 2 seconds                                                       | Passed  | Medium   |
+| TC_COMPAT_01      | Verify app compatibility on Chrome                          | System with Chrome browser          | 1. Open app<br>2. Navigate all pages                                                                                                                 | Layout and features work properly                                               | Layout and features work properly                                               | Passed  | Medium   |
+| TC_COMPAT_02      | Verify app compatibility on Firefox                         | System with Firefox browser         | 1. Open app<br>2. Navigate all pages                                                                                                                 | Layout and features work properly                                               | Layout and features work properly                                               | Passed  | Medium   |
+| TC_ACCESS_01      | Verify color contrast accessibility                         | User on dashboard                   | 1. Check text vs background                                                                                                                          | Meets WCAG 2.1 AA standard                                                      | Meets WCAG 2.1 AA standard                                                      | Passed  | Low      |
+| TC_ACCESS_02      | Verify tab navigation                                       | User using keyboard                 | 1. Press Tab key through UI                                                                                                                          | All elements reachable via Tab                                                  | All elements reachable via Tab                                                  | Passed  | Low      |
+| TC_DATA_01        | Verify data persistence after page refresh                  | User logged in                      | 1. Refresh dashboard                                                                                                                                  | User data remains visible                                                       | User data remains visible                                                       | Passed  | High     |
+| TC_ERROR_01       | Verify error alert styling                                  | Trigger form error                  | 1. Submit invalid form                                                                                                                               | Red alert banner displayed with ⚠️ icon                                         | Red alert banner displayed with ⚠️ icon                                         | Passed  | Medium   |
+| TC_SUCCESS_01     | Verify success alert styling                                | Successful action                   | 1. Submit valid form                                                                                                                                 | Green alert banner displayed                                                    | Green alert banner displayed                                                    | Passed  | Medium   |
 
----
 
-## 2. Functional Test Cases
+## 2. 📊 Test Case Summary
 
-### **P1: User Authentication (High Priority)**
-
-| Test Case ID | Feature         | Test Scenario                                      | Steps to Reproduce                                                                                             | Expected Result                                                                    | Actual Result | Status      |
-| :----------- | :-------------- | :------------------------------------------------- | :------------------------------------------------------------------------------------------------------------- | :--------------------------------------------------------------------------------- | :------------ | :---------- |
-| **TC-AUTH-001**  | User Login      | Verify successful login with valid credentials.    | 1. Navigate to the Login page. <br> 2. Enter `user1@test.com` in the email field. <br> 3. Enter `TestPass123` in the password field. <br> 4. Click "Login". | User is redirected to the Dashboard. A success message is shown.                   | User is redirected to `/profile`, not the Dashboard.                               | Fail        |
-| **TC-AUTH-002**  | User Login      | Verify login failure with invalid password.        | 1. Navigate to the Login page. <br> 2. Enter `user1@test.com` in the email field. <br> 3. Enter `WrongPassword` in the password field. <br> 4. Click "Login". | An error message "Invalid credentials" is displayed. User remains on the Login page. | **CRITICAL BUG:** User is logged in successfully. The password is not validated at all. | Fail        |
-| **TC-AUTH-003**  | User Registration | Verify form validation for mismatched passwords.   | 1. Navigate to the Register page. <br> 2. Fill in all fields. <br> 3. Enter `ValidPass123` for Password. <br> 4. Enter `MismatchedPass` for Confirm Password. <br> 5. Click "Register". | An error message "Passwords do not match" is displayed.                            | No password confirmation field exists. The form has no logic to check for mismatched passwords. | Fail        |
-
-### **P1: Waste Pickup Scheduling (High Priority)**
-
-| Test Case ID | Feature         | Test Scenario                                       | Steps to Reproduce                                                                                                                            | Expected Result                                                                                             | Actual Result | Status      |
-| :----------- | :-------------- | :-------------------------------------------------- | :-------------------------------------------------------------------------------------------------------------------------------------------- | :---------------------------------------------------------------------------------------------------------- | :------------ | :---------- |
-| **TC-WPS-001**   | Schedule Pickup | Verify form submission with all valid data.         | 1. Log in as a regular user. <br> 2. Navigate to the Home page. <br> 3. Fill out all fields with valid data (e.g., future date, waste type, etc.). <br> 4. Click "Submit Request". | A success message "Pickup scheduled successfully!" is displayed. The request appears in the Dashboard.      | A success message is shown and the form is cleared as expected.                                             | Pass        |
-| **TC-WPS-002**   | Schedule Pickup | **[BUG]** Verify form submission without a date.      | 1. Log in as a regular user. <br> 2. Navigate to the Home page. <br> 3. Fill out all fields *except* for the date. <br> 4. Click "Submit Request". | The form should not submit. An error message "Date is required" should appear next to the date field. | The form does not submit. An error "Please fill in all required fields." appears. The code works as expected. | Pass        |
-
-### **P2: Admin Panel (High Priority)**
-
-| Test Case ID | Feature         | Test Scenario                                       | Steps to Reproduce                                                                                                                            | Expected Result                                                                                             | Actual Result | Status      |
-| :----------- | :-------------- | :-------------------------------------------------- | :-------------------------------------------------------------------------------------------------------------------------------------------- | :---------------------------------------------------------------------------------------------------------- | :------------ | :---------- |
-| **TC-ADMIN-001** | Status Update   | **[BUG]** Verify UI updates after changing request status. | 1. Log in as an admin (`admin@cleancity.com`). <br> 2. Navigate to the Admin panel. <br> 3. Find request "REQ001". <br> 4. Click the "Mark as Scheduled" button. | The status badge for REQ001 should immediately change from "Pending" to "Scheduled" directly on the screen. |               |             |
-
-### **P3: Dashboard & Filtering (Medium Priority)**
-
-| Test Case ID | Feature         | Test Scenario                                       | Steps to Reproduce                                                                                                                            | Expected Result                                                                                             | Actual Result | Status      |
-| :----------- | :-------------- | :-------------------------------------------------- | :-------------------------------------------------------------------------------------------------------------------------------------------- | :---------------------------------------------------------------------------------------------------------- | :------------ | :---------- |
-| **TC-DASH-001**  | Location Filter | **[BUG]** Verify filtering by "Eldoret" location.   | 1. Log in and navigate to the Dashboard. <br> 2. In the filter dropdown, select "Eldoret". <br> 3. Observe the table of requests.                 | The table should only display requests with the location "Eldoret" (e.g., REQ004).                          |               |             |
-
----
-
-## Test Cases for FR-022: Feedback Submission After Pickup Completion
-
-### TC-FB-001: Submit Feedback with Valid Request ID
-**Priority:** High | **Risk Level:** Medium
-**Requirement:** FR-022
-
-**Preconditions:**
-- User is logged in
-- At least one completed pickup request exists in system
-- User navigates to Feedback page
-
-**Test Steps:**
-1. Enter valid Request ID (e.g., "REQ001") in Request ID field
-2. Enter feedback text "Great service, pickup was on time"
-3. Click Submit button
-
-**Expected Results:**
-- Success message "Thank you for your feedback!" displays
-- Form fields are cleared
-- No error messages shown
-- Feedback is stored in system
-
-**Test Data:**
-- Valid Request ID: REQ001, REQ002, REQ003
-- Feedback: "Excellent service", "Pickup was delayed but completed"
+| Summary Item           | Count |
+|------------------------|--------|
+| **Total Test Cases**   | 33     |
+| **Execution Status**   | All executed successfully *(can be updated after future test runs)* |
 
 ---
 
-### TC-FB-002: Submit Feedback with Invalid Request ID
-**Priority:** High | **Risk Level:** High
-**Requirement:** FR-022
+## 3. 🔥 Priority Breakdown
 
-**Preconditions:**
-- User is logged in
-- User navigates to Feedback page
+| Priority | Number of Test Cases |
+|----------|------------------------|
+| **High** | 16                     |
+| **Medium** | 14                   |
+| **Low** | 3                      |
 
-**Test Steps:**
-1. Enter invalid Request ID (e.g., "INVALID123") in Request ID field
-2. Enter feedback text "Service was poor"
-3. Click Submit button
-
-**Expected Results:**
-- Error message displays indicating invalid Request ID
-- Form data is retained
-- User can correct the Request ID without re-entering feedback
-- No feedback is stored for invalid ID
-
-**Test Data:**
-- Invalid Request IDs: "INVALID123", "999999", "REQ999", "", "   ", "NULL"
-
----
-
-### TC-FB-003: Submit Feedback with Empty Fields
-**Priority:** Medium | **Risk Level:** Medium
-**Requirement:** FR-022
-
-**Test Steps:**
-1. Leave Request ID field empty
-2. Leave feedback field empty
-3. Click Submit button
-
-**Expected Results:**
-- Error message "Please fill in all fields." displays
-- Form submission is prevented
-- Required field indicators are shown
-
----
-
-### TC-FB-004: Submit Feedback with XSS Attempt
-**Priority:** High | **Risk Level:** Critical
-**Requirement:** FR-022, FR-082, FR-083
-
-**Test Steps:**
-1. Enter valid Request ID "REQ001"
-2. Enter malicious script in feedback: `<script>alert('XSS')</script>`
-3. Click Submit button
-
-**Expected Results:**
-- Script is sanitized and not executed
-- Feedback is stored as plain text
-- No JavaScript execution occurs
-- Success message displays normally
-
----
-
-### TC-FB-005: Submit Feedback with Maximum Length Text
-**Priority:** Medium | **Risk Level:** Low
-**Requirement:** FR-022
-
-**Test Steps:**
-1. Enter valid Request ID "REQ001"
-2. Enter feedback text exceeding 1000 characters
-3. Click Submit button
-
-**Expected Results:**
-- System handles long text gracefully
-- Either accepts with truncation or shows length limit error
-- No system crash or UI breaking
-
----
-
-## Test Cases for FR-045 to FR-048: User Profile Management
-
-### TC-PR-001: View User Profile Information
-**Priority:** Medium | **Risk Level:** Low
-**Requirement:** FR-045, FR-046, FR-048
-
-**Preconditions:**
-- User is logged in
-- User has existing profile data
-
-**Test Steps:**
-1. Navigate to Profile page
-2. Verify profile information display
-
-**Expected Results:**
-- User name, email, and avatar are displayed correctly
-- Activity history shows user's posts, comments, and requests
-- Achievement badges are displayed based on user activity
-- Statistics show accurate environmental impact data
-
----
-
-### TC-PR-002: Edit Profile Information Successfully
-**Priority:** High | **Risk Level:** Medium
-**Requirement:** FR-045
-
-**Preconditions:**
-- User is logged in
-- User is on Profile page
-
-**Test Steps:**
-1. Click "Edit Profile" button
-2. Modify name field to "Updated Name"
-3. Modify email field to "updated@email.com"
-4. Modify avatar URL to valid image URL
-5. Click "Save" button
-
-**Expected Results:**
-- Profile information is updated successfully
-- Changes are persisted in localStorage
-- Updated information displays immediately
-- Edit mode is exited automatically
-
-**Test Data:**
-- Valid names: "John Doe", "Jane Smith-Wilson", "José García"
-- Valid emails: "test@example.com", "user.name@domain.co.uk"
-- Valid avatar URLs: "https://i.pravatar.cc/100?img=15"
-
----
-
-### TC-PR-003: Edit Profile with Invalid Email Format
-**Priority:** High | **Risk Level:** High
-**Requirement:** FR-045, FR-081
-
-**Test Steps:**
-1. Click "Edit Profile" button
-2. Enter invalid email format "invalid-email"
-3. Click "Save" button
-
-**Expected Results:**
-- Validation error message displays
-- Profile is not updated
-- User remains in edit mode
-- Original email is preserved
-
-**Test Data:**
-- Invalid emails: "invalid", "@domain.com", "user@", "user space@domain.com"
-
----
-
-### TC-PR-004: Cancel Profile Edit Operation
-**Priority:** Medium | **Risk Level:** Low
-**Requirement:** FR-045
-
-**Test Steps:**
-1. Click "Edit Profile" button
-2. Modify name field to "Temporary Name"
-3. Click "Cancel" button
-
-**Expected Results:**
-- Changes are discarded
-- Original profile information is restored
-- Edit mode is exited
-- No data is saved to localStorage
-
----
-
-### TC-PR-005: Profile Data Persistence Across Sessions
-**Priority:** High | **Risk Level:** High
-**Requirement:** FR-045, FR-078, FR-079
-
-**Test Steps:**
-1. Edit and save profile information
-2. Close browser tab
-3. Reopen application and login
-4. Navigate to Profile page
-
-**Expected Results:**
-- Updated profile information persists
-- All changes are retained from previous session
-- No data loss occurs
-- localStorage maintains data integrity
-
----
-
-### TC-PR-006: Upload Profile Picture
-**Priority:** Medium | **Risk Level:** Medium
-**Requirement:** FR-047
-
-**Test Steps:**
-1. Click "Edit Profile" button
-2. Enter new avatar URL in avatar field
-3. Click "Save" button
-4. Verify image loads correctly
-
-**Expected Results:**
-- New profile picture displays correctly
-- Image URL is validated and stored
-- Broken image URLs show default avatar
-- Image loads within reasonable time
-
-**Test Data:**
-- Valid image URLs: "https://i.pravatar.cc/100?img=20"
-- Invalid URLs: "not-an-image", "http://broken-link.com/image.jpg"
-
----
-
-### TC-PR-007: View User Activity History
-**Priority:** Medium | **Risk Level:** Low
-**Requirement:** FR-046
-
-**Test Steps:**
-1. Navigate to Profile page
-2. Click on "My Blog Posts" tab
-3. Click on "My Comments" tab
-4. Click on "My Requests" tab
-
-**Expected Results:**
-- Each tab displays relevant user activity
-- Data is accurate and up-to-date
-- Empty states show appropriate messages
-- Navigation between tabs works smoothly
-
----
-
-### TC-PR-008: Profile XSS Prevention
-**Priority:** High | **Risk Level:** Critical
-**Requirement:** FR-045, FR-082, FR-083
-
-**Test Steps:**
-1. Click "Edit Profile" button
-2. Enter malicious script in name field: `<script>alert('XSS')</script>`
-3. Click "Save" button
-
-**Expected Results:**
-- Script is sanitized and stored as plain text
-- No JavaScript execution occurs
-- Profile displays sanitized text
-- Application security is maintained
-
----
-
-### TC-PR-009: Profile Field Length Validation
-**Priority:** Medium | **Risk Level:** Medium
-**Requirement:** FR-045, FR-081
-
-**Test Steps:**
-1. Click "Edit Profile" button
-2. Enter extremely long text in name field (>200 characters)
-3. Enter extremely long email (>100 characters)
-4. Click "Save" button
-
-**Expected Results:**
-- System enforces reasonable length limits
-- Validation messages guide user to correct input
-- UI remains stable with long inputs
-- Data truncation or rejection handled gracefully
-
----
-
-## Risk Mitigation Test Cases
-
-### TC-RISK-001: Data Corruption Prevention
-**Priority:** High | **Risk Level:** Critical
-
-**Test Steps:**
-1. Perform multiple rapid profile updates
-2. Submit feedback while editing profile simultaneously
-3. Clear localStorage partially during operations
-
-**Expected Results:**
-- Data integrity is maintained
-- No corruption occurs in localStorage
-- Application handles concurrent operations gracefully
-- Error recovery mechanisms function properly
-
----
-
-### TC-RISK-002: Browser Compatibility
-**Priority:** Medium | **Risk Level:** Medium
-
-**Test Steps:**
-1. Test feedback submission in Chrome, Firefox, Safari, Edge
-2. Test profile editing across different browsers
-3. Verify localStorage behavior consistency
-
-**Expected Results:**
-- Functionality works consistently across browsers
-- No browser-specific errors occur
-- Data persistence works in all supported browsers
-- UI renders correctly in all environments
-
----
-
-## Test Execution Notes
-
-### Environment Setup:
-- Test on localhost:3000
-- Use browser developer tools for localStorage inspection
-- Test with both empty and populated data states
-
-### Data Cleanup:
-- Clear localStorage between test runs when needed
-- Verify test data isolation
-- Document any persistent state requirements
-
-### Defect Reporting:
-- Include browser version and OS information
-- Capture screenshots for UI issues
-- Document steps to reproduce clearly
-- Note any data corruption or loss scenarios
 

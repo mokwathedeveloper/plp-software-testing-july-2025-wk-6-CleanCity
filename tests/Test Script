@@ -1,0 +1,180 @@
+📌 Setup Requirements
+   pip install selenium
+   pip install pytest
+   pip install webdriver-manager
+
+
+import time
+import pytest
+from selenium import webdriver
+from selenium.webdriver.common.by import By
+from selenium.webdriver.chrome.service import Service
+from webdriver_manager.chrome import ChromeDriverManager
+from selenium.webdriver.common.keys import Keys
+
+
+@pytest.fixture()
+def driver():
+    driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()))
+    driver.maximize_window()
+    yield driver
+    driver.quit()
+
+
+# ---------------------------------------------------------
+# TEST 1: REGISTRATION
+# ---------------------------------------------------------
+
+def test_registration_valid(driver):
+    driver.get("https://cleancity.app/register")
+
+    driver.find_element(By.ID, "register-name").send_keys("Test User")
+    driver.find_element(By.ID, "register-email").send_keys("testuser@example.com")
+    driver.find_element(By.ID, "register-password").send_keys("Password123")
+    driver.find_element(By.ID, "register-confirm-password").send_keys("Password123")
+    driver.find_element(By.Class, "btn btn-primary").click()
+
+    time.sleep(2)
+    assert "login" in driver.current_url
+
+
+def test_registration_invalid_email(driver):
+    driver.get("https://cleancity.app/register")
+
+    driver.find_element(By.ID, "register-email").send_keys("invalid@")
+    driver.find_element(By.Class, "btn btn-primary").click()
+    error = driver.find_element(By.CLASS_NAME, "error").text
+
+    assert "Invalid email address" in error
+
+
+def test_registration_duplicate_email(driver):
+    driver.get("https://cleancity.app/register")
+    driver.find_element(By.ID, "register-email").send_keys("existing@example.com")
+    driver.find_element(By.Class, "btn btn-primary").click()
+
+    error = driver.find_element(By.CLASS_NAME, "error").text
+    assert "Email already exists" in error
+
+
+# ---------------------------------------------------------
+# TEST 2: LOGIN
+# ---------------------------------------------------------
+
+def test_login_valid(driver):
+    driver.get("https://cleancity.app/login")
+
+    driver.find_element(By.ID, "login-email").send_keys("testuser@example.com")
+    driver.find_element(By.ID, "login-password").send_keys("Password123")
+    driver.find_element(By.Class, "btn btn-primary").click()
+
+    assert "dashboard" in driver.current_url
+
+
+def test_login_invalid_password(driver):
+    driver.get("https://cleancity.app/login")
+
+    driver.find_element(By.ID, "login-email").send_keys("testuser@example.com")
+    driver.find_element(By.ID, "login-password").send_keys("wrongpass")
+    driver.find_element(By.Class, "btn btn-primaryloginBtn").click()
+
+    error = driver.find_element(By.CLASS_NAME, "error").text
+    assert "Incorrect username or password" in error
+
+
+# ---------------------------------------------------------
+# TEST 3: WASTE PICKUP REQUEST
+# ---------------------------------------------------------
+
+def test_pickup_request_valid(driver):
+    driver.get("https://cleancity.app/dashboard")
+
+    driver.find_element(By.ID, "fullName").send_keys("Olaleye Ibrahim")
+    driver.find_element(By.ID, "location").send_keys("Nairobi")
+    driver.find_element(By.ID, "wasteType").send_keys("Plastic")
+    driver.find_element(By.ID, "pickupDate").send_keys("2025-11-20")
+    driver.find_element(By.Class, "btn btn-primary").click()
+
+    msg = driver.find_element(By.CLASS_NAME, "success").text
+    assert "Pickup Scheduled" in msg
+
+
+def test_pickup_missing_fields(driver):
+    driver.get("https://cleancity.app/dashboard")
+
+    driver.find_element(By.Class, "btn btn-primary").click()
+    error = driver.find_element(By.CLASS_NAME, "error").text
+
+    assert "All fields required" in error
+
+
+def test_pickup_duplicate(driver):
+    driver.get("https://cleancity.app/dashboard")
+
+     driver.find_element(By.ID, "fullName").send_keys("Olaleye Ibrahim")
+    driver.find_element(By.ID, "location").send_keys("Nairobi")
+    driver.find_element(By.ID, "wasteType").send_keys("Plastic")
+    driver.find_element(By.ID, "pickupDate").send_keys("2025-11-20")
+    driver.find_element(By.Class, "btn btn-primary").click()
+
+    error = driver.find_element(By.CLASS_NAME, "error").text
+    assert "Duplicate request" in error
+
+
+# ---------------------------------------------------------
+# TEST 4: FEEDBACK
+# ---------------------------------------------------------
+
+def test_feedback(driver):
+    driver.get("https://cleancity.app/feedback")
+
+    driver.find_element(By.ID, "requestId").send_keys("REQ-1023")
+    driver.find_element(By.ID, "reason")..send_keys("Missed Pick Up")
+    driver.find_element(By.ID, "comments").send_keys("The truck did not arrive at the scheduled time.")
+    driver.find_element(By.ID, "submitFeedback").click()
+
+    # Validate success message
+    success = driver.find_element(By.CLASS_NAME, "success").text
+    assert "Feedback submitted" in success
+
+
+# ---------------------------------------------------------
+# TEST 5: ADMIN DASHBOARD
+# ---------------------------------------------------------
+
+def test_admin_view_requests(driver):
+    driver.get("https://cleancity.app/admin")
+
+    rows = driver.find_elements(By.CLASS_NAME, "request-row")
+    assert len(rows) > 0
+
+
+def test_admin_update_status(driver):
+    driver.get("https://cleancity.app/admin")
+
+    driver.find_element(By.CLASS_NAME, "status-dropdown").send_keys("Completed")
+    driver.find_element(By.CLASS_NAME, "updateBtn").click()
+
+    msg = driver.find_element(By.CLASS_NAME, "success").text
+    assert "updated" in msg.lower()
+
+
+def test_filter_by_location(driver):
+    driver.get("https://cleancity.app/admin")
+
+    driver.find_element(By.ID, "filterLocation").send_keys("Eldoret")
+    driver.find_element(By.ID, "applyFilter").click()
+
+    results = driver.find_elements(By.CLASS_NAME, "request-location")
+    assert all("Eldoret" in r.text for r in results)
+
+# ---------------------------------------------------------
+# TEST 6: PERFORMANCE TESTS
+# ---------------------------------------------------------
+
+def test_dashboard_load_time(driver):
+    start = time.time()
+    driver.get("https://cleancity.app/dashboard")
+    end = time.time()
+
+    assert (end - start) < 3
